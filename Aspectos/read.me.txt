@@ -1,0 +1,27 @@
+GUÍA DE INTEGRACIÓN – ASPECTO DE AUDITORÍA Y LOGGING
+
+1. Coloque el archivo "logging_aspect.py" dentro de la carpeta de su proyecto.
+
+2. Importe el aspecto:
+
+from logging_aspect import audit_logging_aspect
+
+3. Agregue el decorador encima de cualquier función que modifique el sistema:
+
+@audit_logging_aspect
+
+4. La función debe retornar un diccionario con la información modificada:
+
+return {
+"passenger_name": passenger_name,
+"flight_id": flight_id,
+"seat": "1A",
+"old_ocupado": "0",
+"new_ocupado": "1"
+}
+
+5. Cuando la función se ejecute, el aspecto automáticamente:
+
+* generará un registro de auditoría
+* mostrará el log en consola
+* guardará el log dentro del archivo audit_logs.txt
