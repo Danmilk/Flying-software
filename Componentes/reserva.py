@@ -8,9 +8,9 @@ from Aspectos.logging_aspect import audit_logging_aspect
 class ComponenteLogicaReserva:
     """Este es el componente aparte al que se le enviarán los datos."""
     @audit_logging_aspect
-    def recibir_datos_seleccion(self, flight_id: str, fila: str, columna: str):
+    def recibir_datos_seleccion(self, flight_id: str, fila: str, columna: str, passenger_name: str = ""):
         from Aspectos.bloqueo import lock_seat
-        result = lock_seat(flight_id, fila, columna)
+        result = lock_seat(flight_id, fila, columna, passenger_name)
         print(result["message"])
         return result
 
@@ -41,7 +41,7 @@ class ComponenteSeleccionAsientos:
             print(f"[Error] Fallo al leer seats.json: {e}")
             return []
 
-    def seleccionar_asiento_vuelo(self, flight_id: str):
+    def seleccionar_asiento_vuelo(self, flight_id: str, passenger_name: str = ""):
         """Muestra los asientos del vuelo y solicita la selección por consola."""
         todos_los_asientos = self._cargar_asientos()
         
@@ -81,8 +81,9 @@ class ComponenteSeleccionAsientos:
 
         # 5. PASAR LOS DATOS AL OTRO COMPONENTE ENCARGADO DE LA LÓGICA
         self.componente_logica.recibir_datos_seleccion(
-            flight_id=flight_id, 
-            fila=fila_elegida, 
-            columna=columna_elegida
+            flight_id=flight_id,
+            fila=fila_elegida,
+            columna=columna_elegida,
+            passenger_name=passenger_name
         )
 
