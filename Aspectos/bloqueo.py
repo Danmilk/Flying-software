@@ -1,8 +1,10 @@
 import json
+import os
 from functools import wraps
 
-SEATS_FILE = "data/seats.json"
-FLIGHTS_FILE = "data/flights.json"
+_BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data")
+SEATS_FILE   = os.path.join(_BASE, "seats.json")
+FLIGHTS_FILE = os.path.join(_BASE, "flights.json")
 
 
 def load_json(file_name):
@@ -17,10 +19,7 @@ def save_json(file_name, data):
 
 def validate_flight(flight_id):
     flights = load_json(FLIGHTS_FILE)
-    for flight in flights:
-        if flight["id"] == flight_id:
-            return True
-    return False
+    return any(f["id"] == flight_id for f in flights)
 
 
 def find_seat(flight_id, fila, columna):
@@ -37,7 +36,7 @@ def find_seat(flight_id, fila, columna):
 
 def seat_lock_aspect(func):
     @wraps(func)
-    def wrapper(flight_id, fila, columna, *args, **kwargs):
+    def wrapper(flight_id, fila, columna, passenger_name="", *args, **kwargs):
         if not validate_flight(flight_id):
             return {"success": False, "message": "El vuelo no existe"}
 
@@ -49,32 +48,23 @@ def seat_lock_aspect(func):
             return {"success": False, "message": "El asiento ya está ocupado"}
 
         seat["ocupado"] = True
+        seat["passenger_name"] = passenger_name
         save_json(SEATS_FILE, seats)
-        print(f"Asiento {fila}{columna} del vuelo {flight_id} bloqueado")
 
         try:
-            result = func(flight_id, fila, columna, *args, **kwargs)
+            result = func(flight_id, fila, columna, passenger_name, *args, **kwargs)
             return result
         except Exception as error:
             seat["ocupado"] = False
+            seat["passenger_name"] = ""
             save_json(SEATS_FILE, seats)
-            print("Error detectado. Asiento liberado nuevamente.")
             return {"success": False, "message": str(error)}
     return wrapper
 
 
 @seat_lock_aspect
-def lock_seat(flight_id, fila, columna):
+def lock_seat(flight_id, fila, columna, passenger_name=""):
     return {
         "success": True,
-        "message": f"Asiento {fila}{columna} bloqueado correctamente"
+        "message": f"Asiento {fila}{columna} reservado para {passenger_name} en vuelo {flight_id}"
     }
-
-
-def unlock_seat(flight_id, fila, columna):
-    seat, seats = find_seat(flight_id, fila, columna)
-    if seat is None:
-        return {"success": False, "message": "Asiento no encontrado"}
-    seat["ocupado"] = False
-    save_json(SEATS_FILE, seats)
-    return {"success": True, "message": f"Asiento {fila}{columna} liberado"}
