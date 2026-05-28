@@ -16,6 +16,11 @@
           <div class="dest-icon">{{ icons.get(dest, "✈") }}</div>
           <div class="dest-name">{{ dest }}</div>
           <div class="dest-sub">Buenos Aires → {{ dest }}</div>
+          {% if dest_totals.get(dest, 0) > 0 %}
+          <div class="dest-badge">{{ dest_totals[dest] }} asientos libres</div>
+          {% else %}
+          <div class="dest-badge" style="background:#fff0f0;color:#e74c3c;">Sin disponibilidad</div>
+          {% endif %}
         </div>
         {% endfor %}
       </div>

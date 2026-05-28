@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Vuelos a {{ destination }} — VuelosAR{% endblock %}
 
+{% block head %}
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+{% endblock %}
+
 {% block content %}
 <div class="page">
   <a href="{{ url_for('destinations') }}" style="color:var(--blue); font-size:0.9rem; text-decoration:none; display:inline-flex; align-items:center; gap:6px; margin-bottom:16px;">← Cambiar destino</a>
@@ -13,14 +17,14 @@
       {% if vuelos %}
       <div class="flight-list">
         {% for v in vuelos %}
-        <div class="flight-card" onclick="selectFlight('{{ v.id_vuelo }}', this)">
+        <div class="flight-card" id="fc-{{ v.id_vuelo }}" onclick="selectFlight('{{ v.id_vuelo }}', this)">
           <div class="flight-info">
             <div class="flight-id">{{ v.id_vuelo }}</div>
             <div class="flight-route">Buenos Aires → {{ v.destino }}</div>
             <div class="flight-date">{{ v.fecha_salida }}</div>
           </div>
           <div class="flight-seats">
-            <div class="seats-num">{{ v.asientos_disponibles }}</div>
+            <div class="seats-num" id="seats-{{ v.id_vuelo }}">{{ v.asientos_disponibles }}</div>
             <div class="seats-label">asientos libres</div>
           </div>
         </div>
@@ -41,6 +45,16 @@ function selectFlight(id, el) {
   document.getElementById('flight-input').value = id;
   setTimeout(() => document.getElementById('catalog-form').submit(), 200);
 }
+
+const socket = io();
+
+socket.on("seat_booked_global", (data) => {
+  const el = document.getElementById(`seats-${data.flight_id}`);
+  if (!el) return;
+  el.textContent = data.seats_available;
+  el.classList.add("updated");
+  setTimeout(() => el.classList.remove("updated"), 2000);
+});
 </script>
 {% endblock %}
 {% endblock %}

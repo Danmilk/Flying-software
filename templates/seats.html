@@ -23,22 +23,25 @@
         </div>
 
         {% for fila in filas %}
-        <div class="seat-row">
-          {% for col in columnas %}
-            {% set s = seat_map[fila][col] %}
-            {% if col == "B" %}<div class="aisle"></div>{% endif %}
-            <div
-              class="seat {% if s.ocupado %}occupied{% endif %}"
-              id="seat-{{ fila }}-{{ col }}"
-              data-fila="{{ fila }}"
-              data-col="{{ col }}"
-              title="{% if s.ocupado %}Ocupado por {{ s.passenger_name }}{% else %}Fila {{ fila }} - {{ col }}{% endif %}"
-              {% if not s.ocupado %}onclick="selectSeat(this)"{% endif %}
-            >
-              <span class="seat-label">{{ fila }}{{ col }}</span>
-            </div>
-          {% endfor %}
-        </div>
+          {% if fila == "3" %}
+          <div class="exit-label">⚠ SALIDA DE EMERGENCIA</div>
+          {% endif %}
+          <div class="seat-row {% if fila == '3' %}exit-row{% endif %}">
+            {% for col in columnas %}
+              {% set s = seat_map[fila][col] %}
+              {% if col == "B" %}<div class="aisle"></div>{% endif %}
+              <div
+                class="seat {% if s.ocupado %}occupied{% endif %}"
+                id="seat-{{ fila }}-{{ col }}"
+                data-fila="{{ fila }}"
+                data-col="{{ col }}"
+                title="{% if s.ocupado %}Ocupado por {{ s.passenger_name }}{% else %}Fila {{ fila }} — Columna {{ col }}{% endif %}"
+                {% if not s.ocupado %}onclick="selectSeat(this)"{% endif %}
+              >
+                <span class="seat-label">{{ fila }}{{ col }}</span>
+              </div>
+            {% endfor %}
+          </div>
         {% endfor %}
       </div>
 
@@ -61,10 +64,10 @@
 
 {% block scripts %}
 <script>
-  const flightId = "{{ flight_id }}";
+  const flightId     = "{{ flight_id }}";
   const passengerName = "{{ passenger_name }}";
   let selectedFila = null;
-  let selectedCol = null;
+  let selectedCol  = null;
 
   // ── SocketIO ──────────────────────────────────────────────────────────────
   const socket = io();
@@ -77,30 +80,35 @@
     const seat = document.getElementById(`seat-${data.fila}-${data.columna}`);
     if (!seat) return;
 
-    seat.classList.add("occupied");
-    seat.classList.remove("selected");
+    seat.classList.add("just-taken");
     seat.removeAttribute("onclick");
     seat.title = `Ocupado por ${data.passenger_name}`;
 
+    setTimeout(() => {
+      seat.classList.remove("just-taken");
+      seat.classList.add("occupied");
+    }, 900);
+
     if (selectedFila === data.fila && selectedCol === data.columna) {
       selectedFila = null;
-      selectedCol = null;
-      document.getElementById("seat-display").innerHTML = "Ese asiento acaba de ser reservado. Elegí otro.";
+      selectedCol  = null;
+      document.getElementById("seat-display").innerHTML =
+        "⚠ Ese asiento acaba de ser reservado. Elegí otro.";
       document.getElementById("btn-book").classList.remove("active");
     }
 
-    showToast(`Asiento ${data.fila}${data.columna} reservado por ${data.passenger_name}`, "info");
+    showToast(`${data.passenger_name} reservó el asiento ${data.fila}${data.columna}`, "info");
   });
 
   // ── Seat selection ────────────────────────────────────────────────────────
   function selectSeat(el) {
-    if (el.classList.contains("occupied")) return;
+    if (el.classList.contains("occupied") || el.classList.contains("just-taken")) return;
 
     document.querySelectorAll(".seat.selected").forEach(s => s.classList.remove("selected"));
     el.classList.add("selected");
 
     selectedFila = el.dataset.fila;
-    selectedCol = el.dataset.col;
+    selectedCol  = el.dataset.col;
 
     document.getElementById("seat-display").innerHTML =
       `Asiento seleccionado: <strong>${selectedFila}${selectedCol}</strong>`;
@@ -111,14 +119,15 @@
   async function bookSeat() {
     if (!selectedFila || !selectedCol) return;
 
-    document.getElementById("btn-book").disabled = true;
-    document.getElementById("btn-book").textContent = "Reservando...";
+    const btn = document.getElementById("btn-book");
+    btn.disabled    = true;
+    btn.textContent = "Reservando...";
 
     try {
       const resp = await fetch("/book", {
-        method: "POST",
+        method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fila: selectedFila, columna: selectedCol })
+        body:    JSON.stringify({ fila: selectedFila, columna: selectedCol })
       });
       const data = await resp.json();
 
@@ -126,13 +135,13 @@
         window.location.href = "/confirmation";
       } else {
         showToast(data.message, "error");
-        document.getElementById("btn-book").disabled = false;
-        document.getElementById("btn-book").textContent = "Confirmar reserva";
+        btn.disabled    = false;
+        btn.textContent = "Confirmar reserva";
       }
-    } catch (e) {
+    } catch {
       showToast("Error de conexión. Intentá de nuevo.", "error");
-      document.getElementById("btn-book").disabled = false;
-      document.getElementById("btn-book").textContent = "Confirmar reserva";
+      btn.disabled    = false;
+      btn.textContent = "Confirmar reserva";
     }
   }
 
@@ -140,7 +149,7 @@
   function showToast(msg, type = "info") {
     const t = document.getElementById("toast");
     t.textContent = msg;
-    t.className = `toast ${type} show`;
+    t.className   = `toast ${type} show`;
     setTimeout(() => t.classList.remove("show"), 3500);
   }
 </script>

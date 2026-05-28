@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+data/audit_logs.txt
+data/reserva.json
+audit_logs.txt
+
+.env
+*.egg-info/
+dist/
+build/

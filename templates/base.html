@@ -10,12 +10,17 @@
 <body>
   <nav>
     <div class="logo">✈ VuelosAR <span>Sistema de Reservas</span></div>
-    {% if session.get('passenger_name') %}
-    <div class="nav-user">
-      <span>{{ session.passenger_name }}</span>
-      <a href="{{ url_for('logout') }}">Salir</a>
+    <div class="nav-right">
+      <a href="{{ url_for('monitor') }}" class="nav-monitor">
+        <div class="live-dot"></div> Monitor
+      </a>
+      {% if session.get('passenger_name') %}
+      <div class="nav-user">
+        <span>{{ session.passenger_name }}</span>
+        <a href="{{ url_for('logout') }}">Salir</a>
+      </div>
+      {% endif %}
     </div>
-    {% endif %}
   </nav>
 
   {% block content %}{% endblock %}

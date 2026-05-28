@@ -2,28 +2,50 @@
 {% block title %}Reserva confirmada — VuelosAR{% endblock %}
 
 {% block content %}
-<div class="page" style="max-width:480px;">
-  <div class="card" style="text-align:center;">
-    <div class="confirm-icon">✅</div>
-    <h1 class="page-title" style="text-align:center;">¡Reserva confirmada!</h1>
-    <p class="page-subtitle" style="text-align:center; margin-bottom:0;">Tu asiento ha sido reservado exitosamente.</p>
+<div class="page" style="max-width:500px;">
+  <div class="boarding-pass">
 
-    <div class="confirm-detail">
-      <div class="row">
-        <span class="label">Pasajero</span>
-        <span class="value">{{ passenger_name }}</span>
-      </div>
-      <div class="row">
-        <span class="label">Vuelo</span>
-        <span class="value">{{ booking.flight_id }}</span>
-      </div>
-      <div class="row">
-        <span class="label">Asiento</span>
-        <span class="value">{{ booking.fila }}{{ booking.columna }}</span>
+    <div class="bp-header">
+      <div class="bp-airline">✈ VUELOSAR · TARJETA DE EMBARQUE</div>
+      <div class="bp-passenger">{{ passenger_name }}</div>
+      <div class="bp-route">
+        <span class="city">{{ booking.origin }}</span>
+        <span class="arrow">──────✈──────</span>
+        <span class="city">{{ booking.destination }}</span>
       </div>
     </div>
 
-    <div style="display:flex; gap:12px; margin-top:8px;">
+    <div class="bp-body">
+      <div class="bp-fields">
+        <div class="bp-field">
+          <div class="bp-label">Vuelo</div>
+          <div class="bp-value">{{ booking.flight_id }}</div>
+        </div>
+        <div class="bp-field">
+          <div class="bp-label">Fecha</div>
+          <div class="bp-value">{{ booking.date }}</div>
+        </div>
+        <div class="bp-field">
+          <div class="bp-label">Clase</div>
+          <div class="bp-value">ECO</div>
+        </div>
+      </div>
+
+      <div class="bp-divider">
+        <div class="bp-notch"></div>
+        <div class="bp-notch"></div>
+      </div>
+
+      <div class="bp-seat-block">
+        <div>
+          <div class="bp-seat-label">Asiento</div>
+          <div class="bp-seat-big">{{ booking.fila }}{{ booking.columna }}</div>
+        </div>
+        <div class="bp-confirmed">✓ Confirmado</div>
+      </div>
+    </div>
+
+    <div class="bp-actions">
       <a href="{{ url_for('destinations') }}" class="btn btn-outline">Nueva reserva</a>
       <a href="{{ url_for('logout') }}" class="btn">Salir</a>
     </div>

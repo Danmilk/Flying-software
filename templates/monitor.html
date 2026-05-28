@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}Monitor en vivo — VuelosAR{% endblock %}
+
+{% block head %}
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="monitor-page">
+
+  <!-- ── Panel principal ── -->
+  <div class="monitor-main">
+    <div class="monitor-title">
+      <div class="live-dot"></div> Monitor en vivo
+    </div>
+    <p class="monitor-subtitle">Estado de todos los vuelos · Se actualiza en tiempo real</p>
+
+    {% for destination, vuelos in grouped.items() %}
+    <div class="dest-section">
+      <div class="dest-section-title">Buenos Aires → {{ destination }}</div>
+      <div class="monitor-flights">
+        {% for fl in vuelos %}
+        {% set total = fl.seats | length %}
+        {% set ocupados = fl.seats | selectattr("ocupado") | list | length %}
+        <div class="monitor-flight-card {% if fl.seats_available == 0 %}full{% endif %}"
+             id="mfc-{{ fl.id }}">
+          <div>
+            <div class="mfc-id">{{ fl.id }}</div>
+            <div class="mfc-date">{{ fl.date }}</div>
+          </div>
+
+          <!-- mini mapa: 2 filas (A/B) × 5 columnas (fila 1-5) -->
+          <div class="mfc-mini-map" title="{{ fl.id }}">
+            {% for row in ["1","2","3","4","5"] %}
+              {% for col in ["A","B"] %}
+                {% set seat = fl.seats | selectattr("fila", "equalto", row) | selectattr("columna", "equalto", col) | first | default(none) %}
+                <div class="mini-seat {% if seat and seat.ocupado %}occ{% endif %}"
+                     id="mini-{{ fl.id }}-{{ row }}-{{ col }}"
+                     title="{% if seat and seat.ocupado %}{{ seat.passenger_name }}{% else %}{{ row }}{{ col }}{% endif %}">
+                </div>
+              {% endfor %}
+            {% endfor %}
+          </div>
+
+          <div class="mfc-counter">
+            <div class="mfc-num {% if fl.seats_available == 0 %}full{% endif %}"
+                 id="mfc-num-{{ fl.id }}">{{ fl.seats_available }}</div>
+            <div class="mfc-lbl">libres / {{ total }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- ── Feed lateral ── -->
+  <div class="feed-panel">
+    <div class="feed-header">
+      <div class="live-dot"></div> Últimas reservas
+    </div>
+    <div class="feed-list" id="feed-list">
+      {% if feed %}
+        {% for item in feed %}
+        <div class="feed-item">
+          <div class="fi-top">
+            <span class="fi-name">{{ item.passenger_name }}</span>
+            <span class="fi-time">{{ item.time }}</span>
+          </div>
+          <div class="fi-detail">
+            {{ item.flight_id }} · <span class="fi-seat">{{ item.fila }}{{ item.columna }}</span> · {{ item.destination }}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="feed-empty">Sin reservas aún</div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const socket = io();
+
+  socket.on("connect", () => {
+    socket.emit("join_monitor");
+  });
+
+  socket.on("seat_booked_global", (data) => {
+    // Actualizar mini mapa
+    const mini = document.getElementById(`mini-${data.flight_id}-${data.fila}-${data.columna}`);
+    if (mini) {
+      mini.classList.add("just-booked");
+      mini.title = data.passenger_name;
+      setTimeout(() => {
+        mini.classList.remove("just-booked");
+        mini.classList.add("occ");
+      }, 650);
+    }
+
+    // Actualizar contador
+    const numEl = document.getElementById(`mfc-num-${data.flight_id}`);
+    if (numEl) {
+      numEl.textContent = data.seats_available;
+      if (data.seats_available === 0) {
+        numEl.classList.add("full");
+        const card = document.getElementById(`mfc-${data.flight_id}`);
+        if (card) card.classList.add("full");
+      }
+    }
+
+    // Agregar al feed
+    addToFeed(data);
+  });
+
+  function addToFeed(data) {
+    const list = document.getElementById("feed-list");
+
+    // Limpiar el placeholder "Sin reservas aún"
+    const empty = list.querySelector(".feed-empty");
+    if (empty) empty.remove();
+
+    const item = document.createElement("div");
+    item.className = "feed-item";
+    item.innerHTML = `
+      <div class="fi-top">
+        <span class="fi-name">${data.passenger_name}</span>
+        <span class="fi-time">${data.time}</span>
+      </div>
+      <div class="fi-detail">
+        ${data.flight_id} · <span class="fi-seat">${data.fila}${data.columna}</span> · ${data.destination}
+      </div>`;
+
+    list.insertBefore(item, list.firstChild);
+
+    // Máx 20 entradas
+    const items = list.querySelectorAll(".feed-item");
+    if (items.length > 20) items[items.length - 1].remove();
+  }
+</script>
+{% endblock %}
