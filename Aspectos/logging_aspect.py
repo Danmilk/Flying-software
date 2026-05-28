@@ -1,17 +1,20 @@
+import os
 from datetime import datetime
+from functools import wraps
+
+_LOG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "audit_logs.txt")
 
 
 def audit_logging_aspect(func):
+    @wraps(func)
     def wrapper(*args, **kwargs):
         result = func(*args, **kwargs)
 
-        flight_id = kwargs.get('flight_id') or (args[1] if len(args) > 1 else "Desconocido")
-        fila      = kwargs.get('fila')      or (args[2] if len(args) > 2 else "")
-        columna   = kwargs.get('columna')   or (args[3] if len(args) > 3 else "")
-        seat      = f"{fila}{columna}".strip() or "No especificado"
-
-        print("\n>>> [ASPECTO INTERCEPTOR] Capturando datos para el registro de auditoría...")
-        passenger_name = input("Por favor, ingrese el nombre del pasajero para el LOG: ").strip()
+        flight_id      = kwargs.get('flight_id')      or (args[1] if len(args) > 1 else "Desconocido")
+        fila           = kwargs.get('fila')            or (args[2] if len(args) > 2 else "")
+        columna        = kwargs.get('columna')         or (args[3] if len(args) > 3 else "")
+        passenger_name = kwargs.get('passenger_name') or (args[4] if len(args) > 4 else "DESCONOCIDO")
+        seat           = f"{fila}{columna}".strip()    or "No especificado"
 
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -32,7 +35,7 @@ Estado: CAMBIO REGISTRADO
 """
         print(log_message)
 
-        with open("audit_logs.txt", "a") as log_file:
+        with open(_LOG_FILE, "a", encoding="utf-8") as log_file:
             log_file.write(log_message)
 
         return result
