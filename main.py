@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from login import login
 from Componentes.catalogo import ComponenteCatalogo
 from Componentes.reserva import ComponenteLogicaReserva, ComponenteSeleccionAsientos
-from Agentes.buscador_vuelos import DataLoaderAgent, FlightSearchAgent, SeatBlockingAgent
+from Agentes.buscador_vuelos import DataLoaderAgent, FlightSearchAgent, SeatBlockingAgent, InterfaceAgent
 from Agentes.AgenteCierreVentas import AgenteCierreVentas
 from Aspectos.alertas import alert_aspect
 
@@ -56,12 +56,22 @@ def main():
         success_message="Reserva realizada correctamente",
         error_message="No se pudo realizar la reserva"
     )
-    def hacer_reserva():
+    def hacer_reserva(passenger_name):
+        # Recargar datos frescos para que el mapa refleje el estado actual
+        flights_now = DataLoaderAgent.load_flights()
+        seats_now = DataLoaderAgent.load_seats(flights_now)
+        ui = InterfaceAgent(
+            FlightSearchAgent(flights_now, SeatBlockingAgent(seats_now, flights_now)),
+            SeatBlockingAgent(seats_now, flights_now),
+            seats_now
+        )
+        ui._print_seat_map(flight_id)
+
         logica = ComponenteLogicaReserva()
         seleccion = ComponenteSeleccionAsientos(logica)
-        seleccion.seleccionar_asiento_vuelo(flight_id)
+        seleccion.seleccionar_asiento_vuelo(flight_id, passenger_name)
 
-    hacer_reserva()
+    hacer_reserva(passenger_name)
 
     # 5. Agente de cierre — verificar si el vuelo quedó sin asientos
     AgenteCierreVentas().ejecutar()
