@@ -33,10 +33,10 @@ Fecha y Hora: {timestamp}
 Estado: CAMBIO REGISTRADO
 ================================
 """
-        print(log_message)
-
-        with open(_LOG_FILE, "a", encoding="utf-8") as log_file:
-            log_file.write(log_message)
+        if result and result.get("success"):
+            print(log_message)
+            with open(_LOG_FILE, "a", encoding="utf-8") as log_file:
+                log_file.write(log_message)
 
         return result
     return wrapper

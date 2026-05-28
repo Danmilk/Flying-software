@@ -46,17 +46,17 @@ class ComponenteCatalogo:
             print("[Error] No hay vuelos cargados en el catálogo.")
             return None
 
-        try:
-            opcion = int(input("\nSeleccione el número de vuelo (ej. 1, 2, ...): ")) - 1
+        while True:
+            try:
+                opcion = int(input("\nSeleccione el número de vuelo (ej. 1, 2, ...): ")) - 1
 
-            if opcion < 0 or opcion >= len(self.vuelos):
-                print("[Error] Selección fuera de rango.")
-                return None
+                if opcion < 0 or opcion >= len(self.vuelos):
+                    print("[Error] Selección fuera de rango. Intente de nuevo.")
+                    continue
 
-            vuelo_elegido = self.vuelos[opcion]["id_vuelo"]
-            print(f"\n[CATÁLOGO] Vuelo seleccionado: {vuelo_elegido}")
-            return {"id_vuelo": vuelo_elegido}
+                vuelo_elegido = self.vuelos[opcion]["id_vuelo"]
+                print(f"\n[CATÁLOGO] Vuelo seleccionado: {vuelo_elegido}")
+                return {"id_vuelo": vuelo_elegido}
 
-        except ValueError:
-            print("[Error] Por favor, introduzca un número válido.")
-            return None
+            except ValueError:
+                print("[Error] Por favor, introduzca un número válido.")

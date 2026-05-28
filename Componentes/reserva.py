@@ -43,20 +43,17 @@ class ComponenteSeleccionAsientos:
 
     def seleccionar_asiento_vuelo(self, flight_id: str, passenger_name: str = ""):
         """Muestra los asientos del vuelo y solicita la selección por consola."""
-        todos_los_asientos = self._cargar_asientos()
-        
-        # 1. Filtrar los asientos pertenecientes al vuelo recibido
-        asientos_vuelo = [s for s in todos_los_asientos if s.get("flight_id") == flight_id]
-
-        if not asientos_vuelo:
-            raise ValueError(f"No se encontraron asientos registrados para el vuelo: {flight_id}")
-
-        # 2. Solicitar la selección al usuario
         while True:
+            # Recargar en cada intento para detectar cambios de otra terminal
+            todos_los_asientos = self._cargar_asientos()
+            asientos_vuelo = [s for s in todos_los_asientos if s.get("flight_id") == flight_id]
+
+            if not asientos_vuelo:
+                raise ValueError(f"No se encontraron asientos registrados para el vuelo: {flight_id}")
+
             fila_elegida = input("Seleccione el número de Fila: ").strip()
             columna_elegida = input("Seleccione la letra de Columna: ").strip().upper()
 
-            # 3. Validar existencia y disponibilidad localmente
             asiento_valido = next(
                 (s for s in asientos_vuelo if str(s.get("fila")) == fila_elegida and s.get("columna", "").upper() == columna_elegida),
                 None
@@ -70,13 +67,16 @@ class ComponenteSeleccionAsientos:
                 print("[Error] El asiento seleccionado ya se encuentra ocupado. Intente de nuevo.")
                 continue
 
-            break
+            result = self.componente_logica.recibir_datos_seleccion(
+                flight_id=flight_id,
+                fila=fila_elegida,
+                columna=columna_elegida,
+                passenger_name=passenger_name
+            )
 
-        # 5. PASAR LOS DATOS AL OTRO COMPONENTE ENCARGADO DE LA LÓGICA
-        self.componente_logica.recibir_datos_seleccion(
-            flight_id=flight_id,
-            fila=fila_elegida,
-            columna=columna_elegida,
-            passenger_name=passenger_name
-        )
+            if result and not result.get("success"):
+                print("[Aviso] Otro pasajero acaba de reservar ese asiento. Elija otro.")
+                continue
+
+            break
 

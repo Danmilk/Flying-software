@@ -27,9 +27,10 @@ class AgenteCierreVentas:
             total = sum(1 for s in seats if s["flight_id"] == flight_id)
             ocupados = sum(1 for s in seats if s["flight_id"] == flight_id and s["ocupado"])
 
-            if total > 0 and ocupados >= total:
-                vuelo["seats_available"] = 0
-                cerrados.append(flight_id)
+            if total > 0:
+                vuelo["seats_available"] = total - ocupados
+                if vuelo["seats_available"] == 0:
+                    cerrados.append(flight_id)
 
         with open(self.ruta_flights, "w", encoding="utf-8") as f:
             json.dump(flights, f, indent=4, ensure_ascii=False)
