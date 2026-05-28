@@ -1,7 +1,9 @@
 import json
 import os
 
-
+# =====================================================================
+# COMPONENTE RECEPTOR (El otro módulo que manejará la lógica/escritura)
+# =====================================================================
 class ComponenteLogicaReserva:
     """Este es el componente aparte al que se le enviarán los datos."""
     def recibir_datos_seleccion(self, flight_id: str, fila: str, columna: str):
@@ -15,17 +17,19 @@ class ComponenteLogicaReserva:
         print("*(Aquí es donde este módulo aparte procesará la escritura)*\n")
 
 
-
+# =====================================================================
 # COMPONENTE DE SELECCIÓN (Lee, muestra, captura y envía)
-
+# =====================================================================
 class ComponenteSeleccionAsientos:
     def __init__(self, componente_logica):
-        # Inyección de dependencia: recibe el componente al que le enviará los datos
         self.componente_logica = componente_logica
         
-        # Ruta absoluta hacia la carpeta data/seats.json
-        dir_actual = os.path.dirname(os.path.abspath(__file__))
-        self.ruta_seats = os.path.join(dir_actual, "data", "seats.json")
+        # Se obtiene la ruta de 'Componentes' y se sube un nivel a la raíz
+        dir_componentes = os.path.dirname(os.path.abspath(__file__))
+        dir_raiz = os.path.dirname(dir_componentes)
+        
+        # Ahora sí equivale a: ../data/seats.json
+        self.ruta_seats = os.path.join(dir_raiz, "data", "seats.json")
 
     def _cargar_asientos(self) -> list:
         """Solo lee el archivo JSON de asientos."""
@@ -89,14 +93,9 @@ class ComponenteSeleccionAsientos:
 # PRUEBA DE ARQUITECTURA
 # =====================================================================
 if __name__ == "__main__":
-    # 1. Creamos el componente de lógica que recibirá la información
     modulo_logica = ComponenteLogicaReserva()
-    
-    # 2. Creamos el componente de selección pasándole el módulo destino
     modulo_seleccion = ComponenteSeleccionAsientos(componente_logica=modulo_logica)
     
-    # Simulación: Recibe el ID de vuelo (por ejemplo, el que viene de tu catálogo)
     vuelo_recibido = "FL001" 
     
-    # Arrancamos el flujo del componente
     modulo_seleccion.seleccionar_asiento_vuelo(vuelo_recibido)
