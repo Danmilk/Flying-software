@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Destinos — VuelosAR{% endblock %}
+
+{% block content %}
+<div class="page">
+  <h1 class="page-title">Hola, {{ passenger_name }}</h1>
+  <p class="page-subtitle">¿A dónde querés volar desde Buenos Aires?</p>
+
+  <div class="card">
+    <form method="POST" id="dest-form">
+      <input type="hidden" name="destination" id="dest-input" value="">
+      <div class="dest-grid">
+        {% set icons = {"MADRID": "🇪🇸", "NEW YORK": "🗽", "MIAMI": "🌴"} %}
+        {% for dest in destinos %}
+        <div class="dest-card" onclick="selectDest('{{ dest }}')">
+          <div class="dest-icon">{{ icons.get(dest, "✈") }}</div>
+          <div class="dest-name">{{ dest }}</div>
+          <div class="dest-sub">Buenos Aires → {{ dest }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </form>
+  </div>
+</div>
+
+{% block scripts %}
+<script>
+function selectDest(dest) {
+  document.querySelectorAll('.dest-card').forEach(c => c.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  document.getElementById('dest-input').value = dest;
+  setTimeout(() => document.getElementById('dest-form').submit(), 200);
+}
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Reserva confirmada — VuelosAR{% endblock %}
+
+{% block content %}
+<div class="page" style="max-width:480px;">
+  <div class="card" style="text-align:center;">
+    <div class="confirm-icon">✅</div>
+    <h1 class="page-title" style="text-align:center;">¡Reserva confirmada!</h1>
+    <p class="page-subtitle" style="text-align:center; margin-bottom:0;">Tu asiento ha sido reservado exitosamente.</p>
+
+    <div class="confirm-detail">
+      <div class="row">
+        <span class="label">Pasajero</span>
+        <span class="value">{{ passenger_name }}</span>
+      </div>
+      <div class="row">
+        <span class="label">Vuelo</span>
+        <span class="value">{{ booking.flight_id }}</span>
+      </div>
+      <div class="row">
+        <span class="label">Asiento</span>
+        <span class="value">{{ booking.fila }}{{ booking.columna }}</span>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:12px; margin-top:8px;">
+      <a href="{{ url_for('destinations') }}" class="btn btn-outline">Nueva reserva</a>
+      <a href="{{ url_for('logout') }}" class="btn">Salir</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

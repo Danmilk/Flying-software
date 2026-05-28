@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Vuelos a {{ destination }} — VuelosAR{% endblock %}
+
+{% block content %}
+<div class="page">
+  <a href="{{ url_for('destinations') }}" style="color:var(--blue); font-size:0.9rem; text-decoration:none; display:inline-flex; align-items:center; gap:6px; margin-bottom:16px;">← Cambiar destino</a>
+  <h1 class="page-title">Buenos Aires → {{ destination }}</h1>
+  <p class="page-subtitle">Seleccioná el vuelo de tu preferencia</p>
+
+  <div class="card">
+    <form method="POST" id="catalog-form">
+      <input type="hidden" name="flight_id" id="flight-input" value="">
+      {% if vuelos %}
+      <div class="flight-list">
+        {% for v in vuelos %}
+        <div class="flight-card" onclick="selectFlight('{{ v.id_vuelo }}', this)">
+          <div class="flight-info">
+            <div class="flight-id">{{ v.id_vuelo }}</div>
+            <div class="flight-route">Buenos Aires → {{ v.destino }}</div>
+            <div class="flight-date">{{ v.fecha_salida }}</div>
+          </div>
+          <div class="flight-seats">
+            <div class="seats-num">{{ v.asientos_disponibles }}</div>
+            <div class="seats-label">asientos libres</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p style="color:var(--gray-400); text-align:center; padding:24px 0;">No hay vuelos disponibles para este destino.</p>
+      {% endif %}
+    </form>
+  </div>
+</div>
+
+{% block scripts %}
+<script>
+function selectFlight(id, el) {
+  document.querySelectorAll('.flight-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('flight-input').value = id;
+  setTimeout(() => document.getElementById('catalog-form').submit(), 200);
+}
+</script>
+{% endblock %}
+{% endblock %}

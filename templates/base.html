@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Reserva de Vuelos{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <nav>
+    <div class="logo">✈ VuelosAR <span>Sistema de Reservas</span></div>
+    {% if session.get('passenger_name') %}
+    <div class="nav-user">
+      <span>{{ session.passenger_name }}</span>
+      <a href="{{ url_for('logout') }}">Salir</a>
+    </div>
+    {% endif %}
+  </nav>
+
+  {% block content %}{% endblock %}
+
+  <div id="toast" class="toast"></div>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

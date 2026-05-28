@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}Asientos {{ flight_id }} — VuelosAR{% endblock %}
+
+{% block head %}
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="page" style="max-width:560px;">
+  <a href="{{ url_for('catalog') }}" style="color:var(--blue); font-size:0.9rem; text-decoration:none; display:inline-flex; align-items:center; gap:6px; margin-bottom:16px;">← Cambiar vuelo</a>
+  <h1 class="page-title">Vuelo {{ flight_id }}</h1>
+  <p class="page-subtitle">Buenos Aires → {{ destination }} · Seleccioná tu asiento</p>
+
+  <div class="card">
+    <div class="plane-wrapper">
+      <div class="plane-body">
+        <div class="plane-nose">✈</div>
+
+        <div class="col-headers">
+          <span>A</span>
+          <span></span>
+          <span>B</span>
+        </div>
+
+        {% for fila in filas %}
+        <div class="seat-row">
+          {% for col in columnas %}
+            {% set s = seat_map[fila][col] %}
+            {% if col == "B" %}<div class="aisle"></div>{% endif %}
+            <div
+              class="seat {% if s.ocupado %}occupied{% endif %}"
+              id="seat-{{ fila }}-{{ col }}"
+              data-fila="{{ fila }}"
+              data-col="{{ col }}"
+              title="{% if s.ocupado %}Ocupado por {{ s.passenger_name }}{% else %}Fila {{ fila }} - {{ col }}{% endif %}"
+              {% if not s.ocupado %}onclick="selectSeat(this)"{% endif %}
+            >
+              <span class="seat-label">{{ fila }}{{ col }}</span>
+            </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot"></div> Disponible</div>
+        <div class="legend-item"><div class="legend-dot sel"></div> Seleccionado</div>
+        <div class="legend-item"><div class="legend-dot occ"></div> Ocupado</div>
+      </div>
+    </div>
+
+    <div class="booking-panel">
+      <div class="selected-seat-display" id="seat-display">
+        Hacé clic en un asiento disponible
+      </div>
+      <button id="btn-book" class="btn" onclick="bookSeat()">Confirmar reserva</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const flightId = "{{ flight_id }}";
+  const passengerName = "{{ passenger_name }}";
+  let selectedFila = null;
+  let selectedCol = null;
+
+  // ── SocketIO ──────────────────────────────────────────────────────────────
+  const socket = io();
+
+  socket.on("connect", () => {
+    socket.emit("join_flight", { flight_id: flightId });
+  });
+
+  socket.on("seat_booked", (data) => {
+    const seat = document.getElementById(`seat-${data.fila}-${data.columna}`);
+    if (!seat) return;
+
+    seat.classList.add("occupied");
+    seat.classList.remove("selected");
+    seat.removeAttribute("onclick");
+    seat.title = `Ocupado por ${data.passenger_name}`;
+
+    if (selectedFila === data.fila && selectedCol === data.columna) {
+      selectedFila = null;
+      selectedCol = null;
+      document.getElementById("seat-display").innerHTML = "Ese asiento acaba de ser reservado. Elegí otro.";
+      document.getElementById("btn-book").classList.remove("active");
+    }
+
+    showToast(`Asiento ${data.fila}${data.columna} reservado por ${data.passenger_name}`, "info");
+  });
+
+  // ── Seat selection ────────────────────────────────────────────────────────
+  function selectSeat(el) {
+    if (el.classList.contains("occupied")) return;
+
+    document.querySelectorAll(".seat.selected").forEach(s => s.classList.remove("selected"));
+    el.classList.add("selected");
+
+    selectedFila = el.dataset.fila;
+    selectedCol = el.dataset.col;
+
+    document.getElementById("seat-display").innerHTML =
+      `Asiento seleccionado: <strong>${selectedFila}${selectedCol}</strong>`;
+    document.getElementById("btn-book").classList.add("active");
+  }
+
+  // ── Book ─────────────────────────────────────────────────────────────────
+  async function bookSeat() {
+    if (!selectedFila || !selectedCol) return;
+
+    document.getElementById("btn-book").disabled = true;
+    document.getElementById("btn-book").textContent = "Reservando...";
+
+    try {
+      const resp = await fetch("/book", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fila: selectedFila, columna: selectedCol })
+      });
+      const data = await resp.json();
+
+      if (data.success) {
+        window.location.href = "/confirmation";
+      } else {
+        showToast(data.message, "error");
+        document.getElementById("btn-book").disabled = false;
+        document.getElementById("btn-book").textContent = "Confirmar reserva";
+      }
+    } catch (e) {
+      showToast("Error de conexión. Intentá de nuevo.", "error");
+      document.getElementById("btn-book").disabled = false;
+      document.getElementById("btn-book").textContent = "Confirmar reserva";
+    }
+  }
+
+  // ── Toast ─────────────────────────────────────────────────────────────────
+  function showToast(msg, type = "info") {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => t.classList.remove("show"), 3500);
+  }
+</script>
+{% endblock %}

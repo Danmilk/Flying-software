@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Ingreso — VuelosAR{% endblock %}
+
+{% block content %}
+<div class="page" style="max-width:420px;">
+  <div style="text-align:center; margin-bottom:32px;">
+    <div style="font-size:3rem;">✈</div>
+    <h1 class="page-title" style="text-align:center;">VuelosAR</h1>
+    <p class="page-subtitle" style="text-align:center;">Ingresá tu nombre para continuar</p>
+  </div>
+
+  <div class="card">
+    {% if error %}
+    <div class="error-msg">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST">
+      <div class="form-group">
+        <label>Nombre del pasajero</label>
+        <input type="text" name="name" placeholder="Ej: JUAN PÉREZ" autofocus autocomplete="off">
+      </div>
+      <button type="submit" class="btn">Continuar</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
