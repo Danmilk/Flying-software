@@ -1,9 +1,7 @@
 import json
 import os
 
-# =====================================================================
-# COMPONENTE RECEPTOR (El otro módulo que manejará la lógica/escritura)
-# =====================================================================
+
 class ComponenteLogicaReserva:
     """Este es el componente aparte al que se le enviarán los datos."""
     def recibir_datos_seleccion(self, flight_id: str, fila: str, columna: str):
@@ -17,9 +15,9 @@ class ComponenteLogicaReserva:
         print("*(Aquí es donde este módulo aparte procesará la escritura)*\n")
 
 
-# =====================================================================
+
 # COMPONENTE DE SELECCIÓN (Lee, muestra, captura y envía)
-# =====================================================================
+
 class ComponenteSeleccionAsientos:
     def __init__(self, componente_logica):
         # Inyección de dependencia: recibe el componente al que le enviará los datos
