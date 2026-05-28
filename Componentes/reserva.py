@@ -86,14 +86,3 @@ class ComponenteSeleccionAsientos:
             columna=columna_elegida
         )
 
-
-# =====================================================================
-# PRUEBA DE ARQUITECTURA
-# =====================================================================
-if __name__ == "__main__":
-    modulo_logica = ComponenteLogicaReserva()
-    modulo_seleccion = ComponenteSeleccionAsientos(componente_logica=modulo_logica)
-    
-    vuelo_recibido = "FL001" 
-    
-    modulo_seleccion.seleccionar_asiento_vuelo(vuelo_recibido)

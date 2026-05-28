@@ -27,8 +27,3 @@ class AgenteCierreVentas:
 
         with open(self.ruta_flights, "w", encoding="utf-8") as f:
             json.dump(flights, f, indent=4, ensure_ascii=False)
-
-
-if __name__ == "__main__":
-    agente = AgenteCierreVentas()
-    agente.ejecutar()
