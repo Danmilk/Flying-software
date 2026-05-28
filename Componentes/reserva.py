@@ -49,35 +49,28 @@ class ComponenteSeleccionAsientos:
         asientos_vuelo = [s for s in todos_los_asientos if s.get("flight_id") == flight_id]
 
         if not asientos_vuelo:
-            print(f"[Error] No se encontraron asientos registrados para el vuelo: {flight_id}")
-            return
+            raise ValueError(f"No se encontraron asientos registrados para el vuelo: {flight_id}")
 
-        # 2. Desplegar los asientos en consola
-        print("\n=========================================")
-        print(f"        MAPA DE ASIENTOS - VUELO {flight_id}      ")
-        print("=========================================")
-        for s in asientos_vuelo:
-            estado = "🔴 Ocupado" if s.get("ocupado") else "🟢 Disponible"
-            print(f" Fila: {s.get('fila')} | Columna: {s.get('columna')} | Estado: {estado}")
-        print("=========================================")
+        # 2. Solicitar la selección al usuario
+        while True:
+            fila_elegida = input("Seleccione el número de Fila: ").strip()
+            columna_elegida = input("Seleccione la letra de Columna: ").strip().upper()
 
-        # 3. Solicitar la selección al usuario
-        fila_elegida = input("Seleccione el número de Fila: ").strip()
-        columna_elegida = input("Seleccione la letra de Columna: ").strip().upper()
+            # 3. Validar existencia y disponibilidad localmente
+            asiento_valido = next(
+                (s for s in asientos_vuelo if str(s.get("fila")) == fila_elegida and s.get("columna", "").upper() == columna_elegida),
+                None
+            )
 
-        # 4. Validar existencia y disponibilidad localmente
-        asiento_valido = next(
-            (s for s in asientos_vuelo if str(s.get("fila")) == fila_elegida and s.get("columna", "").upper() == columna_elegida), 
-            None
-        )
+            if not asiento_valido:
+                print("[Error] El asiento ingresado no existe para este vuelo. Intente de nuevo.")
+                continue
 
-        if not asiento_valido:
-            print("[Error] El asiento ingresado no existe para este vuelo.")
-            return
+            if asiento_valido.get("ocupado"):
+                print("[Error] El asiento seleccionado ya se encuentra ocupado. Intente de nuevo.")
+                continue
 
-        if asiento_valido.get("ocupado"):
-            print("[Error] El asiento seleccionado ya se encuentra ocupado.")
-            return
+            break
 
         # 5. PASAR LOS DATOS AL OTRO COMPONENTE ENCARGADO DE LA LÓGICA
         self.componente_logica.recibir_datos_seleccion(

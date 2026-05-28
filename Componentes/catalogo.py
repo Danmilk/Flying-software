@@ -12,12 +12,14 @@ class ComponenteCatalogo:
 
             self.vuelos = []
             for item in data:
-                self.vuelos.append({
-                    "id_vuelo": item.get("id"),
-                    "fecha_salida": item.get("date"),
-                    "origen": item.get("origin"),
-                    "destino": item.get("destination")
-                })
+                if item.get("seats_available", 0) > 0:
+                    self.vuelos.append({
+                        "id_vuelo": item.get("id"),
+                        "fecha_salida": item.get("date"),
+                        "origen": item.get("origin"),
+                        "destino": item.get("destination"),
+                        "asientos_disponibles": item.get("seats_available")
+                    })
         except Exception as e:
             print(f"[Error] No se pudo cargar el archivo flights.json: {e}")
             self.vuelos = []
@@ -36,6 +38,7 @@ class ComponenteCatalogo:
             print(f"    Fecha de Salida: {vuelo['fecha_salida']}")
             print(f"    Origen:          {vuelo['origen']}")
             print(f"    Destino:         {vuelo['destino']}")
+            print(f"    Asientos libres: {vuelo['asientos_disponibles']}")
             print("-" * 41)
 
     def seleccionar_y_preparar_json(self):

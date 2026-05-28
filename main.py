@@ -12,7 +12,7 @@ from Aspectos.alertas import alert_aspect
 
 
 def main():
-    # 1. Mock login
+    # 1. Login
     passenger_name = login()
 
     # 2. Agente buscador — cargar datos y filtrar destinos disponibles
@@ -60,9 +60,10 @@ def main():
         # Recargar datos frescos para que el mapa refleje el estado actual
         flights_now = DataLoaderAgent.load_flights()
         seats_now = DataLoaderAgent.load_seats(flights_now)
+        blocker_now = SeatBlockingAgent(seats_now, flights_now)
         ui = InterfaceAgent(
-            FlightSearchAgent(flights_now, SeatBlockingAgent(seats_now, flights_now)),
-            SeatBlockingAgent(seats_now, flights_now),
+            FlightSearchAgent(flights_now, blocker_now),
+            blocker_now,
             seats_now
         )
         ui._print_seat_map(flight_id)
