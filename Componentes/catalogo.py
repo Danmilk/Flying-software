@@ -5,7 +5,7 @@ class ComponenteCatalogo:
     def __init__(self):
         # Obtener la ruta absoluta del archivo flights.json en el mismo directorio del script
         dir_actual = os.path.dirname(os.path.abspath(__file__))
-        ruta_flights = os.path.join(dir_actual, "flights.json")
+        ruta_flights = os.path.join(dir_actual, "..", "data", "flights.json")
         
         try:
             with open(ruta_flights, "r", encoding="utf-8") as f:
@@ -73,7 +73,7 @@ class ComponenteCatalogo:
             
             # Guardar el JSON en un archivo reserva.json en el mismo directorio
             dir_actual = os.path.dirname(os.path.abspath(__file__))
-            ruta_reserva = os.path.join(dir_actual, "reserva.json")
+            ruta_reserva = os.path.join(dir_actual, "..", "data", "reserva.json")
             with open(ruta_reserva, "w", encoding="utf-8") as f:
                 f.write(json_resultado)
 
@@ -85,6 +85,8 @@ class ComponenteCatalogo:
             print("="*45)
             print(f"*(Guardado en: {ruta_reserva})*")
             print("*(Listo para ser consumido por el componente Reserva)*\n")
+
+            return datos_preparados
 
         except ValueError:
             print("[Error] Por favor, introduzca un número válido.")

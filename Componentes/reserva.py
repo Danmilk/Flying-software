@@ -1,20 +1,18 @@
 import json
 import os
+from Aspectos.logging_aspect import audit_logging_aspect
 
 # =====================================================================
 # COMPONENTE RECEPTOR (El otro módulo que manejará la lógica/escritura)
 # =====================================================================
 class ComponenteLogicaReserva:
     """Este es el componente aparte al que se le enviarán los datos."""
+    @audit_logging_aspect
     def recibir_datos_seleccion(self, flight_id: str, fila: str, columna: str):
-        print("\n" + "="*45)
-        print(" [COMPONENTE LÓGICA] -> DATOS RECIBIDOS CON ÉXITO:")
-        print("="*45)
-        print(f" Vuelo ID : {flight_id}")
-        print(f" Fila     : {fila}")
-        print(f" Columna  : {columna}")
-        print("=========================================")
-        print("*(Aquí es donde este módulo aparte procesará la escritura)*\n")
+        from Aspectos.bloqueo import lock_seat
+        result = lock_seat(flight_id, fila, columna)
+        print(result["message"])
+        return result
 
 
 # =====================================================================

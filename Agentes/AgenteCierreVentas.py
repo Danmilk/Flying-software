@@ -4,8 +4,8 @@ import os
 class AgenteCierreVentas:
     def __init__(self):
         dir_actual = os.path.dirname(os.path.abspath(__file__))
-        self.ruta_seats = os.path.join(dir_actual, "data", "seats.json")
-        self.ruta_flights = os.path.join(dir_actual, "data", "flights.json")
+        self.ruta_seats = os.path.join(dir_actual, "..", "data", "seats.json")
+        self.ruta_flights = os.path.join(dir_actual, "..", "data", "flights.json")
 
     def ejecutar(self):
         with open(self.ruta_seats, "r", encoding="utf-8") as f:
