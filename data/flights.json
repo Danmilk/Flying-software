@@ -4,69 +4,69 @@
     "origin": "BUENOS AIRES",
     "destination": "MADRID",
     "date": "2026-08-01",
-    "seats_available": "10"
+    "seats_available": 10
   },
   {
     "id": "FL002",
     "origin": "BUENOS AIRES",
     "destination": "MADRID",
     "date": "2026-08-05",
-    "seats_available": "10"
+    "seats_available": 10
   },
   {
     "id": "FL003",
     "origin": "BUENOS AIRES",
     "destination": "MADRID",
     "date": "2026-08-10",
-    "seats_available": "10"
+    "seats_available": 10
   },
   {
     "id": "FL004",
     "origin": "BUENOS AIRES",
     "destination": "MADRID",
     "date": "2026-08-20",
-    "seats_available": "10"
+    "seats_available": 10
   },
   {
     "id": "FL005",
     "origin": "BUENOS AIRES",
     "destination": "NEW YORK",
     "date": "2026-08-02",
-    "seats_available": "10"
+    "seats_available": 10
   },
   {
     "id": "FL006",
     "origin": "BUENOS AIRES",
     "destination": "NEW YORK",
     "date": "2026-08-08",
-    "seats_available": "10"
+    "seats_available": 10
   },
   {
     "id": "FL007",
     "origin": "BUENOS AIRES",
     "destination": "NEW YORK",
     "date": "2026-08-18",
-    "seats_available": "10"
+    "seats_available": 10
   },
   {
     "id": "FL008",
     "origin": "BUENOS AIRES",
     "destination": "MIAMI",
     "date": "2026-08-03",
-    "seats_available": "10"
+    "seats_available": 10
   },
   {
     "id": "FL009",
     "origin": "BUENOS AIRES",
     "destination": "MIAMI",
     "date": "2026-08-12",
-    "seats_available": "10"
+    "seats_available": 10
   },
   {
     "id": "FL010",
     "origin": "BUENOS AIRES",
     "destination": "MIAMI",
     "date": "2026-08-25",
-    "seats_available": "10"
+    "seats_available": 10
   }
 ]
